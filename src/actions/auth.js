@@ -10,9 +10,10 @@ import { firebase, googleAuthProvider} from '../firebase/firebase-config';
 
 export const startLoginEmailPassword = (email, password)=> {
     return (dispatch) => {
-        setTimeout(() => {
-            dispatch(login(123, 'Pedro'));
-        }, 3500);
+        firebase.auth.sign
+        // setTimeout(() => {
+        //     dispatch(login(123, 'Pedro'));
+        // }, 3500);
     }
 }
 
