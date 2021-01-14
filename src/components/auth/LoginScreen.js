@@ -1,5 +1,5 @@
 import React from 'react';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 import { Link } from 'react-router-dom'
 import { startLoginEmailPassword, startGoogleLogin } from '../../actions/auth';
@@ -10,15 +10,21 @@ import { useForm } from '../../hooks/useForm';
  */
 export const LoginScreen = () => {
 
+    /** Usar redux para despachar en la constante dispatch */
     const dispatch = useDispatch();
 
+    const { loading } = useSelector(state => state.ui );
+
+    /** Hook de useForm */
     const [ formValues, handleInputChange ] = useForm({
-        email: 'nando@gmail.com',
+        email: 'iiotatlas@gmail.com',
         password: '123456'
     });
 
+    /** Desestructuracion de value useform */
     const { email, password } = formValues;
 
+    /** handle  */
     const handleLogin = (e) => {
         e.preventDefault();
         dispatch( startLoginEmailPassword(email, password) )
@@ -57,6 +63,7 @@ export const LoginScreen = () => {
                 <button
                     type="submit"
                     className="btn btn-primary btn-block"
+                    disabled={ loading }
                 >
                     Login
                 </button>

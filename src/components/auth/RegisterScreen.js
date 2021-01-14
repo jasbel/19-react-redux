@@ -6,6 +6,7 @@ import { useForm } from '../../hooks/useForm';
 import { setError, removeError } from '../../actions/ui';
 import { useDispatch, useSelector } from 'react-redux';
 import { startRegisterWithEmailPasswordName } from '../../actions/auth';
+import Swal from 'sweetalert2';
 
 /**
  * @example
@@ -21,7 +22,6 @@ export const RegisterScreen = () => {
 
     const dispatch = useDispatch();
     const { msgError } = useSelector(state => state.ui );
-
 
     //userForm
     const [ formValues, handleInputChange ] = useForm({
@@ -48,10 +48,13 @@ export const RegisterScreen = () => {
 
         if( name.trim().length === 0) {
             msgErr = "Name is required";
+            Swal.fire("Name", `<p style="color: red">${msgErr}<p>`, 'warning' )
         } else if( !validator.isEmail( email)) {
             msgErr = 'Email is not valid';
+            Swal.fire("Email", `<p>${msgErr}<p>`, 'warning' )
         } else if( password !== password2 || password.length < 5 ) {
             msgErr = 'Password incorrecto ';
+            Swal.fire("Password", `<p>${msgErr}<p>`, 'warning' )
         }
 
         if (!!msgErr) {
