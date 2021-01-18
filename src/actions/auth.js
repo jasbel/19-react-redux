@@ -51,7 +51,6 @@ export const startRegisterWithEmailPasswordName = ( email, password, name ) => {
                 console.error(e);
                 Swal.fire("Fail", e.message, 'error')
             });
-            
     }
 }
 
