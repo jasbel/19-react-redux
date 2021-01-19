@@ -10,3 +10,7 @@ Validacion de formularios
 
 Notificacion de errores
 >>npm i sweetalert2
+
+### claves example redux
+
+ const { name } = useSelector(state => state.auth);
