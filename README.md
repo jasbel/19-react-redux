@@ -1,68 +1,336 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## teoria 
 
-## Available Scripts
+Link de la docummentacion oficial https://es.redux.js.org/
+Link react-redux https://react-redux.js.org/
 
-In the project directory, you can run:
+> npm i react-redux redux
 
-### `yarn start`
+extension chrome DevTools de Redux
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+## Primera Accion
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+create en
+`src/reducer/authReducer.js`
 
-### `yarn test`
+``` javascript
 
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+import {types} from '../types/types';
 
-### `yarn build`
+export const authReducer = ( state = {}, action) => {
+    switch (action.type) {
+        case types.login:
+            return {
+                uid: action.payload.uid,
+                name: action.payload.name,
+            }
+        case types.logout:
+            return {}
+        default:
+            return state
+    }
+}
 
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
 
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Create en
+`src/types/types.js`
 
-### `yarn eject`
+```javascript
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+export const types = {
+    login: '[Auth] Login',
+    logout: '[Auth] Logout'
+}
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+Create en
+`src/store/store.js`
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+```javascript
 
-## Learn More
+import { createStore, combineReducers } from 'redux';
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+const reducers = combineReducers({
+    auth: authReducer
+})
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+export const store = createStore(reducers);
 
-### Code Splitting
+```
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
+Introducir Redux en el componente mas alto posible, en este caso en 
+`src/JournalApp.js`
+```javascript
 
-### Analyzing the Bundle Size
+//...
+import { Provider } from 'react-redux';
+import { store } from './store/store';
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
+//...
 
-### Making a Progressive Web App
+    <Provider >
+         // <AppRouter />
+    </Provider>
+//..
+```
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
+## Segunda Accion
 
-### Advanced Configuration
+Para ver la devtools , modificar el codigo a  
+`src/store/store.js`
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
+```javascript
 
-### Deployment
+import { createStore, combineReducers } from 'redux';
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
+const reducers = combineReducers({
+    auth: authReducer
+})
 
-### `yarn build` fails to minify
+export const store = createStore(
+    reducers,
+    window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
+);
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+```
+
+Modificar el archivo 
+`src/reducers/authReducer.js`
+
+```javascript
+
+import {types} from '../types/types';
+
+const initialState = {
+    uid: 123213,
+    name: 'Asbel',
+    dir: {
+        b: 12,
+    }
+}
+
+export const authReducer = ( state = initialState , action) => {
+    switch (action.type) {
+        case types.login:
+            return {
+                uid: action.payload.uid,
+                name: action.payload.name,
+            }
+        case types.logout:
+            return {}
+        default:
+            return state
+    }
+}
+
+
+```
+
+## Tercera Accion - Dispatch en store
+
+<!-- Crear `src/hooks/useForms` -->
+
+Create `src/actions/auth.js`
+
+```javascript
+
+import {types} from '../types/types';
+
+export const login = (uid, displayName) => {
+    return {
+        type: types.login,
+        payload: {
+            uid,
+            displayName
+        }
+    }
+}
+
+```
+
+Cambiar o introducir En:
+`src/components/auth/LoginScreen.js`
+
+```javascript
+
+//..
+import { useDispatch } from 'react-redux';
+import { login } from '../../actions/auth';
+
+//..
+const dispatch = useDispatch();
+
+//..
+dispatch( login(31231, 'asbel') );
+
+```
+
+## Cuarta Acciones
+intalar middleware en nuestro casao usaremo THUNK (O SAGA) son para datos asincronos o llamandas a API.
+Update of next code 
+`src/store/store.js`
+
+```javascript
+
+import { createStore, combineReducers, applyMiddleware, compose } from 'redux';
+import thunk from 'redux-thunk';
+
+import { authReducer } from '../reducers/authReducer';
+
+const composeEnhancers = (typeof window !== 'undefined' && window.__REDUX_DEVTOOLS_EXTENSION__COMPOSE__) || compose;
+
+const reducers = combineReducers({
+    auth: authReducer
+})
+
+export const store = createStore(
+    reducers,
+    composeEnhancers(
+        applyMiddleware( thunk)
+    )
+);
+
+```
+
+Update in code, function async
+`src/actions/auth.js`
+
+```javascript
+
+import {types} from '../types/types';
+
+// Tarea Asincronaa
+export const startLoginEmailPassword = (email, password) => {
+    return (dispatch) => {
+        setTimeout(() => {
+            dispatch( login(123, 'pedro') );
+        }, 3500);
+    }
+}
+
+export const login = (uid, displayName) => {
+    return {
+        type: types.login,
+        payload: {
+            uid,
+            displayName
+        }
+    }
+}
+
+```
+
+Cambiar o introducir En:
+`src/components/auth/LoginScreen.js`
+
+```javascript
+
+//..
+import { useDispatch } from 'react-redux';
+import { login } from '../../actions/auth';
+
+//..
+const dispatch = useDispatch();
+
+//..
+    dispatch( startLoginEmailPassword(31231, 'asbel') );
+
+```
+
+## Quinta Accion - 
+
+
+En types debemos registra el nuevo types para el reducer de uiReducers
+`src/types/types.js`
+
+```javascript
+
+export const types = {
+    login: '[Auth] Login',
+    logout: '[Auth] Logout'
+
+    uiSetError: '[UI] Set Error',
+    uiRemoveError: '[UI] Remove Error',
+}
+
+```
+
+Creamos un nuevo reducer en:
+`src/reducers/uiReducer.js`
+
+``` javascript
+
+    const initialState = {
+        loading: false,
+        msgError: null,
+    }
+
+    export const uiReducer = ( state = initialState, action) => {
+
+        switch ( action.type ) {
+            case types.uiSetError:
+                return {
+                    ...state,
+                    msgError: action.payload
+                }
+            case types.uiRemoveError:
+                return {
+                    ...state,
+                    msgError: null
+                }
+        
+            default:
+                return state;
+        }
+
+    }
+
+```
+
+
+Para realizar el funcionamiento correcto debemos modifica el store para  el nuevo reducer1
+`src/store/store.js`
+
+```javascript
+
+import { createStore, combineReducers, applyMiddleware, compose } from 'redux';
+import thunk from 'redux-thunk';
+
+import { authReducer } from '../reducers/authReducer';
+import { uiReducer } from '../reducers/uiReducer';
+
+const composeEnhancers = (typeof window !== 'undefined' && window.__REDUX_DEVTOOLS_EXTENSION__COMPOSE__) || compose;
+
+const reducers = combineReducers({
+    auth: authReducer,
+    ui: uiReducer,
+})
+
+export const store = createStore(
+    reducers,
+    composeEnhancers(
+        applyMiddleware( thunk)
+    )
+);
+
+```
+
+Creamos un nueva actions de
+`src/actions/ui.js`
+
+``` javascript
+
+    import { types } from '../types/types';
+
+    export const setError = ( err ) => ({
+        type: types.uiSetError,
+        payload: err
+    });
+
+    export const removeError = ( ) => ({
+        type: types.uiRemoveError,
+    })
+
+```
